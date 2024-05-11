@@ -1,0 +1,11 @@
+
+
+docker run --name mongodb -p 27017:27017 -d mongodb/mongodb-community-server:latest
+
+#if container is stoped
+docker start <container_id>
+
+#execute container in bash
+#docker exec -it <container_id> bash
+
+
