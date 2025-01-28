@@ -8,7 +8,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 import com.springmongodb.entity.Customer;
+import com.springmongodb.entity.User;
 import com.springmongodb.repository.CustomerRepository;
+import com.springmongodb.repository.UserRepository;
 
 
 @ComponentScan(basePackages = {"com.springmongodb.repository"})
@@ -18,6 +20,9 @@ public class SpringMongodbApplication implements CommandLineRunner{
 
 	 @Autowired
 	  private CustomerRepository repository;
+	 
+	 @Autowired
+	 private UserRepository userRepository;
 	
 	public static void main(String[] args) {
 		SpringApplication.run(SpringMongodbApplication.class, args);
@@ -51,7 +56,12 @@ public class SpringMongodbApplication implements CommandLineRunner{
 	    for (Customer customer : repository.findByLastName("Smith")) {
 	      System.out.println(customer);
 	    }
+	    
+	    /*############################  User ####################    */
 
+	    for(User user : userRepository.findAll()) {
+	    	System.out.println(user);
+	    }
 	  }
 
 
