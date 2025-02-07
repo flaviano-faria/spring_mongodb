@@ -5,6 +5,27 @@ docker run --name mongodb -p 27017:27017 -d mongodb/mongodb-community-server:lat
 docker start <container_id>
 
 #execute container in bash
-#docker exec -it <container_id> bash
+#docker exec -it <container_id> bash 
+
+
+     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
