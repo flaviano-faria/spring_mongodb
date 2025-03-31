@@ -19,7 +19,7 @@ import com.springmongodb.repository.UserRepository;
 public class SpringMongodbApplication implements CommandLineRunner{
 
 	 @Autowired
-	  private CustomerRepository repository;
+	 private CustomerRepository repository;
 	 
 	 @Autowired
 	 private UserRepository userRepository;
