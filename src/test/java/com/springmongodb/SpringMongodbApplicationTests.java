@@ -19,12 +19,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Testcontainers
 class SpringMongodbApplicationTests {
 
+	public static final String SPRING_DATA_MONGODB_URI = "spring.data.mongodb.uri";
+	public static final String JOHN = "John";
+	public static final String DOE = "Doe";
 	@Container
 	static MongoDBContainer mongoDBContainer = new MongoDBContainer(DockerImageName.parse("mongo:4.4.2"));
 
 	@DynamicPropertySource
 	static void mongoProperties(DynamicPropertyRegistry registry) {
-		registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+		registry.add(SPRING_DATA_MONGODB_URI, mongoDBContainer::getReplicaSetUrl);
 	}
 
 	@Autowired
@@ -37,15 +40,15 @@ class SpringMongodbApplicationTests {
 	@Test
 	void shouldSaveAndRetrieveCustomer() {
 		// Given
-		Customer customer = new Customer("John", "Doe");
+		Customer customer = new Customer(JOHN, DOE);
 
 		// When
 		Customer savedCustomer = customerRepository.save(customer);
-		Customer retrievedCustomer = customerRepository.findByFirstName("John");
+		Customer retrievedCustomer = customerRepository.findByFirstName(JOHN);
 
 		// Then
 		assertThat(retrievedCustomer).isNotNull();
-		assertThat(retrievedCustomer.firstName).isEqualTo("John");
-		assertThat(retrievedCustomer.lastName).isEqualTo("Doe");
+		assertThat(retrievedCustomer.firstName).isEqualTo(JOHN);
+		assertThat(retrievedCustomer.lastName).isEqualTo(DOE);
 	}
 } 
