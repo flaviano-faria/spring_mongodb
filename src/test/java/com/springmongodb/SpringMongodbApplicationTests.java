@@ -2,7 +2,7 @@ package com.springmongodb;
 
 import com.springmongodb.entity.Customer;
 import com.springmongodb.repository.CustomerRepository;
-import com.springmongodb.exec.SpringMongodbApplication;
+import com.springmongodb.app.SpringMongodbApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
