@@ -25,6 +25,7 @@ public class SpringMongodbApplication implements CommandLineRunner{
 	 private UserRepository userRepository;
 	
 	public static void main(String[] args) {
+
 		SpringApplication.run(SpringMongodbApplication.class, args);
 	}
 	
