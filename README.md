@@ -1,86 +1,62 @@
-# Spring MongoDB Application
+# Spring MongoDB Project
 
-This is a Spring Boot application that demonstrates the integration between Spring Framework and MongoDB, providing a robust foundation for building scalable and efficient web applications with NoSQL database support.
+A Spring Boot application demonstrating MongoDB integration with hexagonal architecture.
+
+## Project Overview
+
+This project implements a user management system using MongoDB as the data store, following hexagonal architecture principles. It demonstrates the integration of Spring Boot with MongoDB, including test containers for testing.
+
+## Architecture
+
+The project follows hexagonal architecture principles with the following layers:
+
+```
+com.mongodb/
+├── app/                    # Application entry point
+├── controller/            # REST controllers
+├── domain/               # Domain layer
+│   ├── adapter/         # Adapters for domain services
+│   ├── ports/           # Ports (interfaces)
+│   └── User.java        # Domain model
+├── exception/           # Custom exceptions
+└── infra/              # Infrastructure layer
+    ├── adapters/       # Adapters for external services
+    │   ├── entity/     # MongoDB entities
+    │   └── repository/ # Repository implementations
+    └── configuration/  # Configuration classes
+```
 
 ## Technologies Used
 
 - Java 17
-- Spring Boot 3.2.5
-- Spring Data MongoDB
-- Spring Web
-- Maven
+- Spring Boot 3.2.0
 - MongoDB
-- Apache Tomcat (Embedded)
-- Testcontainers (for integration testing)
+- TestContainers
+- JUnit 5
+- Maven
 
 ## Prerequisites
 
-Before running this application, make sure you have the following installed:
-
-- Java Development Kit (JDK) 17 or later
-- MongoDB (Make sure MongoDB server is running on your machine)
-- Maven 3.x
-- Docker (required for running test containers)
-- Your favorite IDE (IntelliJ IDEA, Eclipse, VS Code, etc.)
-
-## Project Structure
-
-The project follows standard Maven project structure:
-
-```
-spring_mongodb/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── com/springmongodb/
-│   │   │       ├── exec/           # Main application class
-│   │   │       ├── entity/         # Domain models
-│   │   │       └── repository/     # MongoDB repositories
-│   │   └── resources/             # Application properties and static resources
-│   └── test/
-│       └── java/
-│           └── com/springmongodb/  # Test classes
-├── pom.xml                        # Maven configuration file
-├── .gitignore
-└── README.md
-```
+- Java 17 or higher
+- Maven 3.6 or higher
+- Docker (for running tests with TestContainers)
+- MongoDB server (for local development)
 
 ## Getting Started
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/spring_mongodb.git
-   cd spring_mongodb
-   ```
+### Building the Project
 
-2. Configure MongoDB:
-   - Make sure MongoDB is running on your machine
-   - Update `application.properties` with your MongoDB configuration if needed
+```bash
+mvn clean install
+```
 
-3. Build the project:
-   ```bash
-   mvn clean install
-   ```
+### Running the Application
 
-4. Run the application:
-   ```bash
-   mvn spring-boot:run
-   ```
+```bash
+mvn spring:boot run
+```
 
-The application will start on `http://localhost:8080`
-
-## Features
-
-- Spring Boot 3.2.5 framework
-- MongoDB integration using Spring Data MongoDB
-- RESTful API endpoints
-- War packaging support
-- Integration testing with Testcontainers
-- Custom MongoDB repository queries
-
-## Testing
-
-The project uses Testcontainers for integration testing, providing isolated MongoDB instances for each test run.
+The application will start on port 8080 by default.
 
 ### Running Tests
 
@@ -88,49 +64,74 @@ The project uses Testcontainers for integration testing, providing isolated Mong
 mvn test
 ```
 
-### Test Features
+## API Endpoints
 
-- Automated MongoDB container management
-- Isolated test environment
-- Integration testing with real MongoDB instance
-- Example test cases for Customer entity operations
+### User Management
 
-### Test Container Configuration
+- `POST /api/users` - Create a new user
+- `GET /api/users` - Get all users
+- `GET /api/users/{id}` - Get user by ID
+- `DELETE /api/users/{id}` - Delete user by ID
 
-The test configuration uses:
-- MongoDB 4.4.2 container
-- Dynamic property configuration for MongoDB URI
-- Spring Boot test context with proper configuration
+## Testing
+
+The project uses TestContainers for integration testing with MongoDB. Tests are configured to:
+- Start a MongoDB container for each test class
+- Clean up data between tests
+- Use dynamic port allocation
+
+### Test Structure
+
+```java
+@SpringBootTest(classes = SpringMongoApplication.class)
+@Testcontainers
+public class UserServiceTest {
+    @Container
+    static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0.2");
+    
+    // Test methods
+}
+```
 
 ## Configuration
 
-The application can be configured through the `application.properties` file located in `src/main/resources/`. Key configuration properties include:
+### MongoDB Configuration
+
+The application uses the following MongoDB properties (configurable in `application.properties`):
 
 ```properties
-# MongoDB Configuration
-spring.data.mongodb.host=localhost
-spring.data.mongodb.port=27017
-spring.data.mongodb.database=your_database_name
+spring.data.mongodb.uri=mongodb://localhost:27017/mydatabase
 ```
 
-## Building for Production
+### Test Configuration
 
-To build a WAR file for deployment:
+For tests, MongoDB connection properties are dynamically configured using TestContainers:
 
-```bash
-mvn clean package
+```java
+@DynamicPropertySource
+static void mongoProperties(DynamicPropertyRegistry registry) {
+    registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+}
 ```
 
-The WAR file will be generated in the `target` directory.
+## Dependencies
+
+Key dependencies include:
+
+- `spring-boot-starter-data-mongodb`: MongoDB integration
+- `spring-boot-starter-web`: Web application support
+- `testcontainers`: Container-based testing
+- `junit-jupiter`: Testing framework
+- `lombok`: Reducing boilerplate code
 
 ## Contributing
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
-## Support
+## License
 
-For support and questions, please open an issue in the GitHub repository. 
+This project is licensed under the MIT License - see the LICENSE file for details. 
