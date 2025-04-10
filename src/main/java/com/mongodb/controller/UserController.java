@@ -2,6 +2,7 @@ package com.mongodb.controller;
 
 import com.mongodb.domain.User;
 import com.mongodb.domain.ports.service.UserServicePort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,8 +18,9 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        return ResponseEntity.ok(userServicePort.createUser(user));
+    public ResponseEntity<?> createUser(@RequestBody User user) {
+        userServicePort.createUser(user);
+        return new ResponseEntity<>("", HttpStatus.CREATED);
     }
 
     @GetMapping

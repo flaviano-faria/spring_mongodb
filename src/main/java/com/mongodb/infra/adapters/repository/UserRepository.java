@@ -23,12 +23,12 @@ public class UserRepository implements UserRepositoryPort {
     }
 
     @Override
-    public User save(User user) {
+    public void save(User user) {
         UserEntity userEntity = UserEntity.builder()
                 .document(user.getDocument())
                 .name(user.getName())
                 .age(user.getAge()).build();
-        return iUserRepository.save(userEntity);
+        iUserRepository.save(userEntity);
     }
 
     @Override
@@ -43,6 +43,11 @@ public class UserRepository implements UserRepositoryPort {
 
     @Override
     public void deleteById(String id) {
+        iUserRepository.deleteById(id);
+    }
 
+    @Override
+    public void deleteAll() {
+        iUserRepository.deleteAll();
     }
 }
