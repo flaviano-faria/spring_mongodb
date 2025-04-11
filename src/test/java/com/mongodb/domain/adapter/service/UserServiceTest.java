@@ -46,14 +46,14 @@ class UserServiceTest {
                 .build();
 
         // Execute
-        User savedUser = userService.createUser(user);
-
+        userService.createUser(user);
+        List<User> users = userService.getAllUsers();
         // Assert
-        assertNotNull(savedUser);
-        assertNotNull(savedUser.getId());
-        assertEquals("123456789", savedUser.getDocument());
-        assertEquals("John Doe", savedUser.getName());
-        assertEquals(30, savedUser.getAge());
+        assertNotNull(users.get(0).getId());
+        assertNotNull(users.get(0).getId());
+        assertEquals("123456789", users.get(0).getDocument());
+        assertEquals("John Doe", users.get(0).getName());
+        assertEquals(30, users.get(0).getAge());
     }
 
     @Test
@@ -90,14 +90,14 @@ class UserServiceTest {
                 .name("John Doe")
                 .age(30)
                 .build();
-        User savedUser = userService.createUser(user);
-
+        userService.createUser(user);
+        List<User> users = userService.getAllUsers();
         // Execute
-        User foundUser = userService.getUserById(savedUser.getId()).orElse(null);
+        User foundUser = userService.getUserById(users.get(0).getId()).orElse(null);
 
         // Assert
         assertNotNull(foundUser);
-        assertEquals(savedUser.getId(), foundUser.getId());
+        assertEquals(users.get(0).getId(), foundUser.getId());
         assertEquals("123456789", foundUser.getDocument());
         assertEquals("John Doe", foundUser.getName());
         assertEquals(30, foundUser.getAge());
@@ -111,12 +111,12 @@ class UserServiceTest {
                 .name("John Doe")
                 .age(30)
                 .build();
-        User savedUser = userService.createUser(user);
-
+        userService.createUser(user);
+        List<User> users = userService.getAllUsers();
         // Execute
-        userService.deleteUser(savedUser.getId());
+        userService.deleteUser(users.get(0).getId());
 
         // Assert
-        assertNull(userService.getUserById(savedUser.getId()));
+        assertNull(userService.getUserById(users.get(0).getId()));
     }
 } 
