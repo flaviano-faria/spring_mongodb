@@ -30,9 +30,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable String id) {
-        return userServicePort.getUserById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return new ResponseEntity<>(userServicePort.getUserById(id), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

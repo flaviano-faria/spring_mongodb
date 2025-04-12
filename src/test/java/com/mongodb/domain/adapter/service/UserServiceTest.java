@@ -102,7 +102,7 @@ class UserServiceTest {
         userService.createUser(user);
         List<User> users = userService.getAllUsers();
         // Execute
-        User foundUser = userService.getUserById(users.get(0).getId()).orElse(null);
+        User foundUser = userService.getUserById(users.get(0).getId());
 
         // Assert
         assertNotNull(foundUser);

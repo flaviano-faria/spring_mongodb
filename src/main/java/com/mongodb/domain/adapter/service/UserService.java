@@ -3,17 +3,13 @@ package com.mongodb.domain.adapter.service;
 import com.mongodb.domain.User;
 import com.mongodb.domain.ports.repository.UserRepositoryPort;
 import com.mongodb.domain.ports.service.UserServicePort;
-import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
 import java.util.List;
-import java.util.Optional;
 
-@Service
+@RequiredArgsConstructor
 public class UserService implements UserServicePort {
-    private final UserRepositoryPort userRepositoryPort;
 
-    public UserService(UserRepositoryPort userRepositoryPort) {
-        this.userRepositoryPort = userRepositoryPort;
-    }
+    private final UserRepositoryPort userRepositoryPort;
 
     @Override
     public void createUser(User user) {
@@ -26,8 +22,9 @@ public class UserService implements UserServicePort {
     }
 
     @Override
-    public Optional<User> getUserById(String id) {
-        return userRepositoryPort.findById(id);
+    public User getUserById(String id) {
+
+        return userRepositoryPort.findById(id).orElse(null);
     }
 
     @Override

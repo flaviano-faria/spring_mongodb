@@ -7,6 +7,6 @@ import java.util.Optional;
 public interface UserServicePort {
     void createUser(User user);
     List<User> getAllUsers();
-    Optional<User> getUserById(String id);
+    User getUserById(String id);
     void deleteUser(String id);
 } 
