@@ -1,136 +1,151 @@
 # Spring MongoDB Project
 
-A Spring Boot application demonstrating MongoDB integration with hexagonal architecture.
+This project is a Spring Boot application that demonstrates the implementation of a RESTful API using MongoDB as the database, following hexagonal architecture principles.
 
-## Project Overview
+## Project Structure
 
-This project implements a user management system using MongoDB as the data store, following hexagonal architecture principles. It demonstrates the integration of Spring Boot with MongoDB, including test containers for testing.
-
-## Architecture
-
-The project follows hexagonal architecture principles with the following layers:
+The project follows a hexagonal architecture (also known as Ports and Adapters) with the following structure:
 
 ```
-com.mongodb/
-├── app/                    # Application entry point
-├── controller/            # REST controllers
-├── domain/               # Domain layer
-│   ├── adapter/         # Adapters for domain services
-│   ├── ports/           # Ports (interfaces)
-│   └── User.java        # Domain model
-├── exception/           # Custom exceptions
-└── infra/              # Infrastructure layer
-    ├── adapters/       # Adapters for external services
-    │   ├── entity/     # MongoDB entities
-    │   └── repository/ # Repository implementations
-    └── configuration/  # Configuration classes
+src/
+├── main/
+│   ├── java/
+│   │   └── com/mongodb/
+│   │       ├── domain/
+│   │       │   ├── User.java
+│   │       │   └── ports/
+│   │       │       ├── repository/
+│   │       │       └── service/
+│   │       ├── infra/
+│   │       │   └── adapters/
+│   │       │       ├── entity/
+│   │       │       └── repository/
+│   │       └── controller/
+│   └── resources/
+│       └── application.properties
+└── test/
+    └── java/
+        └── com/mongodb/
+            └── domain/
+                └── adapter/
+                    └── service/
+                        └── UserServiceTest.java
 ```
 
-## Technologies Used
+## Technologies
 
 - Java 17
-- Spring Boot 3.2.0
+- Spring Boot
+- Spring Data MongoDB
 - MongoDB
+- Lombok
 - TestContainers
 - JUnit 5
-- Maven
 
 ## Prerequisites
 
 - Java 17 or higher
 - Maven 3.6 or higher
-- Docker (for running tests with TestContainers)
-- MongoDB server (for local development)
+- Docker (for running MongoDB container in tests)
+- MongoDB (for running the application)
 
-## Getting Started
+## Setup and Running
 
-### Building the Project
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd spring_mongodb
+```
 
+2. Build the project:
 ```bash
 mvn clean install
 ```
 
-### Running the Application
-
+3. Run the application:
 ```bash
-mvn spring:boot run
-```
-
-The application will start on port 8080 by default.
-
-### Running Tests
-
-```bash
-mvn test
+mvn spring-boot:run
 ```
 
 ## API Endpoints
 
 ### User Management
 
-- `POST /api/users` - Create a new user
-- `GET /api/users` - Get all users
-- `GET /api/users/{id}` - Get user by ID
-- `DELETE /api/users/{id}` - Delete user by ID
+- **Create User**
+  - POST `/api/users`
+  - Request Body:
+    ```json
+    {
+      "document": "123456789",
+      "name": "John Doe",
+      "age": 30
+    }
+    ```
+
+- **Get All Users**
+  - GET `/api/users`
+
+- **Get User by ID**
+  - GET `/api/users/{id}`
+
+- **Delete User**
+  - DELETE `/api/users/{id}`
 
 ## Testing
 
-The project uses TestContainers for integration testing with MongoDB. Tests are configured to:
-- Start a MongoDB container for each test class
-- Clean up data between tests
-- Use dynamic port allocation
+The project uses TestContainers for integration testing with MongoDB. Tests can be run using:
 
-### Test Structure
-
-```java
-@SpringBootTest(classes = SpringMongoApplication.class)
-@Testcontainers
-public class UserServiceTest {
-    @Container
-    static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0.2");
-    
-    // Test methods
-}
+```bash
+mvn test
 ```
+
+### Test Coverage
+
+The test suite includes:
+- Unit tests for the service layer
+- Integration tests using TestContainers
+- CRUD operation testing
+- Error handling scenarios
 
 ## Configuration
 
-### MongoDB Configuration
-
-The application uses the following MongoDB properties (configurable in `application.properties`):
+### Application Properties
 
 ```properties
 spring.data.mongodb.uri=mongodb://localhost:27017/mydatabase
+spring.data.mongodb.database=mydatabase
 ```
 
-### Test Configuration
+### Test Properties
 
-For tests, MongoDB connection properties are dynamically configured using TestContainers:
+Tests use TestContainers to spin up a MongoDB container automatically, so no additional configuration is needed for testing.
 
-```java
-@DynamicPropertySource
-static void mongoProperties(DynamicPropertyRegistry registry) {
-    registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
-}
-```
+## Architecture
 
-## Dependencies
+This project follows hexagonal architecture with:
 
-Key dependencies include:
+1. **Domain Layer**
+   - Core business logic
+   - Domain entities
+   - Port definitions (interfaces)
 
-- `spring-boot-starter-data-mongodb`: MongoDB integration
-- `spring-boot-starter-web`: Web application support
-- `testcontainers`: Container-based testing
-- `junit-jupiter`: Testing framework
-- `lombok`: Reducing boilerplate code
+2. **Infrastructure Layer**
+   - MongoDB adapters
+   - Repository implementations
+   - Entity mappings
+
+3. **Application Layer**
+   - REST controllers
+   - Service implementations
+   - Configuration
 
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch
+2. Create your feature branch
 3. Commit your changes
 4. Push to the branch
-5. Create a Pull Request
+5. Create a new Pull Request
 
 ## License
 
