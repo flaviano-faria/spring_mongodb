@@ -29,6 +29,9 @@ import static org.junit.jupiter.api.Assertions.*;
 })
 class UserServiceTest {
 
+    private static final String TEST_DOCUMENT = "123456789";
+    private static final String TEST_NAME = "John Doe";
+
     @Autowired
     private UserService userService;
 
@@ -49,8 +52,8 @@ class UserServiceTest {
     void createUserTest() {
         // Setup
         User user = User.builder()
-                .document("123456789")
-                .name("John Doe")
+                .document(TEST_DOCUMENT)
+                .name(TEST_NAME)
                 .age(30)
                 .build();
 
@@ -60,8 +63,8 @@ class UserServiceTest {
         // Assert
         assertNotNull(users.get(0).getId());
         assertNotNull(users.get(0).getId());
-        assertEquals("123456789", users.get(0).getDocument());
-        assertEquals("John Doe", users.get(0).getName());
+        assertEquals(TEST_DOCUMENT, users.get(0).getDocument());
+        assertEquals(TEST_NAME, users.get(0).getName());
         assertEquals(30, users.get(0).getAge());
     }
 
@@ -69,8 +72,8 @@ class UserServiceTest {
     void getAllUsersTest() {
         // Setup
         User user1 = User.builder()
-                .document("123456789")
-                .name("John Doe")
+                .document(TEST_DOCUMENT)
+                .name(TEST_NAME)
                 .age(30)
                 .build();
         userService.createUser(user1);
@@ -87,7 +90,7 @@ class UserServiceTest {
 
         // Assert
         assertEquals(2, users.size());
-        assertTrue(users.stream().anyMatch(u -> u.getName().equals("John Doe")));
+        assertTrue(users.stream().anyMatch(u -> u.getName().equals(TEST_NAME)));
         assertTrue(users.stream().anyMatch(u -> u.getName().equals("Jane Doe")));
     }
 
@@ -95,8 +98,8 @@ class UserServiceTest {
     void getUserByIdTest() {
         // Setup
         User user = User.builder()
-                .document("123456789")
-                .name("John Doe")
+                .document(TEST_DOCUMENT)
+                .name(TEST_NAME)
                 .age(30)
                 .build();
         userService.createUser(user);
@@ -107,8 +110,8 @@ class UserServiceTest {
         // Assert
         assertNotNull(foundUser);
         assertEquals(users.get(0).getId(), foundUser.getId());
-        assertEquals("123456789", foundUser.getDocument());
-        assertEquals("John Doe", foundUser.getName());
+        assertEquals(TEST_DOCUMENT, foundUser.getDocument());
+        assertEquals(TEST_NAME, foundUser.getName());
         assertEquals(30, foundUser.getAge());
     }
 
@@ -116,8 +119,8 @@ class UserServiceTest {
     void deleteUserTest() {
         // Setup
         User user = User.builder()
-                .document("123456789")
-                .name("John Doe")
+                .document(TEST_DOCUMENT)
+                .name(TEST_NAME)
                 .age(30)
                 .build();
         userService.createUser(user);
