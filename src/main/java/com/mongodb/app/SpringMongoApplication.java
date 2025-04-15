@@ -9,7 +9,9 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan(basePackages = {
     "com.mongodb.infra.configuration",
     "com.mongodb.infra.adapters.repository",
-    "com.mongodb.controller"
+    "com.mongodb.controller",
+    "com.mongodb.domain.adapter.service"
+
 })
 public class SpringMongoApplication {
     public static void main(String[] args) {
