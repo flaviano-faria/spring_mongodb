@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Cursor hooks runtime state ###
+.cursor/hooks/.state/
