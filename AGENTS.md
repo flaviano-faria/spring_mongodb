@@ -87,6 +87,44 @@ Uses `spring.data.mongodb.host` + `port` (localhost:27017). There is **no** `uri
 - `MongoTestConfig` is **unused dead code** — do not extend it; prefer `TestConfig`.
 - Surefire includes `**/*Test.java` only.
 - Controllers are **not** covered by tests today.
+- Mockito and MockMvc are available through `spring-boot-starter-test`; no mocked unit tests exist yet.
+
+## Unit test policy (mandatory)
+
+**Every change to a class under `src/main/java` must update its related test in the same change.** If the class has no test yet, create one. A change is not done until the related tests are updated and pass.
+
+### Rules
+
+1. **Location:** mirror the production package under `src/test/java`, named `<ClassName>Test.java` (e.g. `com.mongodb.domain.adapter.service.UserService` → `src/test/java/com/mongodb/domain/adapter/service/UserServiceTest.java`). The `Test` suffix is required or Surefire skips the file.
+2. **What to update:**
+   - New public method → add test methods for the success path and the edge cases (e.g. missing id, empty list).
+   - Changed behavior → update assertions to the new behavior.
+   - Renamed/removed method → rename/remove its tests.
+   - New or changed field on `User` / `UserEntity` → update builders and assertions in every test that builds or reads them.
+   - Interface (port) change → update the tests of every implementation.
+3. **Never** make tests pass by deleting or weakening assertions, adding `@Disabled`, or running with `-DskipTests`.
+4. **Style:** follow `UserServiceTest` — JUnit 5 `Assertions`, `<methodName>Test` names, `// Setup` / `// Execute` / `// Assert` sections, clean state in `@BeforeEach`.
+5. **Verify before finishing:** run the related test, then the full suite, and report the result. If Docker is unavailable, say the Testcontainers tests could not run; do not claim they passed.
+
+   ```powershell
+   .\mvnw.cmd test -Dtest=UserServiceTest
+   .\mvnw.cmd test
+   ```
+
+6. **Test hook:** `.cursor/hooks.json` enforces this. When the agent edits `src/main`, `src/test`, or `pom.xml`, the `stop` hook runs `.\mvnw.cmd test` at the end of the turn and sends failures (or "Docker not running") back as a follow-up message, up to 3 times. Fix the reported failures under the rules above. Log: `.cursor/hooks/.state/last-test-run.log`.
+
+### Class → test map
+
+| Production class | Test | Style |
+|------------------|------|-------|
+| `UserService` | `UserServiceTest` (exists) | Testcontainers integration; Mockito unit tests against a mocked `UserRepositoryPort` may be added alongside |
+| `UserController` | `UserControllerTest` (create on first change) | `MockMvcBuilders.standaloneSetup(new UserController(mockPort))` with a Mockito mock of `UserServicePort`; include the status codes and bodies from the API table |
+| `UserRepository` / `IUserRepository` | `UserRepositoryTest` (create on first change) | Testcontainers, same setup as `UserServiceTest` |
+| `UserEntity` / `User` | `UserEntityTest` (create on first change) | Plain JUnit round-trip of `fromUser` / `toUser`, checking every field |
+| `UserServicePort` / `UserRepositoryPort` | Tests of their implementations | — |
+| `BeanConfiguration`, `MongoConfig`, `MongoProperties`, `SpringMongoApplication` | `UserServiceTest` (loads the full Spring context) | Must still pass; add a dedicated test if the class gains logic |
+
+Prefer `standaloneSetup` over `@WebMvcTest` for controllers: the explicit `@ComponentScan` on `SpringMongoApplication` would pull repository beans into a web slice and require MongoDB.
 
 ## Common change checklists
 
@@ -94,17 +132,19 @@ Uses `spring.data.mongodb.host` + `port` (localhost:27017). There is **no** `uri
 1. `UserServicePort` + `UserService`
 2. `UserRepositoryPort` + `UserRepository` (+ `IUserRepository` if needed)
 3. `UserController` mapping
-4. Extend `UserServiceTest` (create → assert via reads)
+4. Extend `UserServiceTest` (create → assert via reads) and add/update `UserControllerTest` for the new mapping
+5. Update tests for every other class touched (see the unit test policy)
 
 ### New field on User
 1. `User` + `UserEntity` + mappers
-2. Update test builders/assertions
+2. Update test builders/assertions in `UserServiceTest` and add/update `UserEntityTest` for the mapping
 3. No migration tooling — Mongo is schemaless; be careful with primitive `int` defaults vs wrappers
 
 ### New package / bean
 1. Update `SpringMongoApplication` `@ComponentScan`
 2. Register service beans in `BeanConfiguration` if not stereotype-scanned
 3. Update test scan/import if needed
+4. Create `<ClassName>Test.java` for each new class in the mirrored test package
 
 ## Commands
 
@@ -123,9 +163,11 @@ Local Mongo expected at `localhost:27017` for the running app; tests spin their 
 - Map through `UserEntity.fromUser` / `toUser`.
 - Match existing response status semantics unless the task is to change them.
 - Prefer Testcontainers-style service tests consistent with `UserServiceTest`.
+- Update or create the related test whenever a production class changes, and run it before finishing.
 
 **Don't**
-- Assume README Mongo URI/`database` properties or “unit tests with mocks” exist.
+- Assume README Mongo URI/`database` properties or mocked unit tests already exist.
+- Finish a class change without its test change, or skip/disable tests to get a green build.
 - Add packages without updating `@ComponentScan`.
 - Call `IUserRepository` from controllers or `UserService`.
 - Rely on `save` returning a populated domain id without changing that contract.
