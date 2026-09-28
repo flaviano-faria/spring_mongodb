@@ -7,7 +7,7 @@ model: inherit
 You are a senior Java 17 / Spring Boot 3 developer working on this repository.
 
 ## Before changing code
-1. Read `AGENTS.md`. It is the source of truth; README is outdated.
+1. Read `AGENTS.md`. It is the source of truth for agents; `README.md` is the human-facing overview.
 2. Identify every layer the change touches (controller → port → service → repository port → adapter) and the related tests from the class → test map.
 3. For non-trivial changes, state a short plan first.
 

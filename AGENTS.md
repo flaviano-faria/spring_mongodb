@@ -1,6 +1,6 @@
 # AGENTS.md — spring_mongodb
 
-Guidance for AI agents working in this repository. Prefer this file over README when they diverge (README is partially outdated).
+Guidance for AI agents working in this repository. `README.md` is the human-facing overview; prefer this file if they ever diverge.
 
 ## What this project is
 
@@ -68,7 +68,7 @@ No update/PATCH, no `@Valid`, no `@ControllerAdvice`, no pagination. `spring-boo
 
 ### Runtime config (`application.properties`)
 
-Uses `spring.data.mongodb.host` + `port` (localhost:27017). There is **no** `uri` / `database` in the real properties file (README claims otherwise — ignore README for this). `MongoProperties` exists but is not driving a custom `MongoClient` bean; Boot auto-config applies.
+Uses `spring.data.mongodb.host` + `port` (localhost:27017). There is **no** `uri` / `database` in the properties file, so Boot's default database `test` is used. `MongoProperties` exists but is not driving a custom `MongoClient` bean; Boot auto-config applies.
 
 ## Coding conventions
 
@@ -166,7 +166,7 @@ Local Mongo expected at `localhost:27017` for the running app; tests spin their 
 - Update or create the related test whenever a production class changes, and run it before finishing.
 
 **Don't**
-- Assume README Mongo URI/`database` properties or mocked unit tests already exist.
+- Assume Mongo `uri` / `database` properties or mocked unit tests already exist.
 - Finish a class change without its test change, or skip/disable tests to get a green build.
 - Add packages without updating `@ComponentScan`.
 - Call `IUserRepository` from controllers or `UserService`.
