@@ -27,6 +27,8 @@ UserController  →  UserServicePort  →  UserService  →  UserRepositoryPort 
 
 **Dependency rule:** Controllers and infra depend inward on ports/domain. Do not let domain services depend on Spring Data interfaces or HTTP types.
 
+Before editing a layer, read its file under `harness/layers/`. The map is `harness/README.md`.
+
 ### Known architecture leaks (do not “fix” casually)
 
 - `User` has `@Document` / `@Id` (Mongo annotations on domain).
