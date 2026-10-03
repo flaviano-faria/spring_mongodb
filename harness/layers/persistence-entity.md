@@ -1,8 +1,10 @@
 # Persistence entity
 
-`UserEntity` is the Mongo document. `@Document(collection = "users")` belongs on the entity. Mirror every `User` field.
+`UserEntity` is the Mongo document. Keep `@Document(collection = "users")` and `@Id` on this class.
 
-`fromUser` and `toUser` copy every field, including `id`. When a field is added, update both methods in the same change.
+`User` has the same annotations. That is a known leak. Do not remove them from `User` while editing the entity. See "Known architecture leaks" in `AGENTS.md`.
+
+Mirror every `User` field. `fromUser` and `toUser` copy every field, including `id`. The field checklist is in `AGENTS.md`.
 
 ```java
 return UserEntity.builder()

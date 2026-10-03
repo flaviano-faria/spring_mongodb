@@ -1,11 +1,11 @@
 # Tests
 
-Name the class `<ClassName>Test`. Surefire includes only `**/*Test.java`. Mirror the production package under `src/test/java`.
+Follow the unit test policy and the class-to-test map in `AGENTS.md`. This file only adds what is easy to get wrong in this repository.
 
-Integration tests follow `UserServiceTest`: `@SpringBootTest(classes = SpringMongoApplication.class)`, `@Import(TestConfig.class)`, `@DynamicPropertySource` set from `TestConfig.getMongoUri()`, and `deleteAll()` in `@BeforeEach`. The container image is `mongo:6.0.2`. Use `TestConfig`. `MongoTestConfig` is unused; do not extend it.
+`UserServiceTest` repeats `@ComponentScan`, and Spring does not process it. The test loads `SpringMongoApplication` and `@Import(TestConfig.class)`. See `layers/bootstrap.md`.
 
-Controller tests use `MockMvcBuilders.standaloneSetup` and a Mockito mock of `UserServicePort`. Entity mapping tests are plain JUnit, with no Spring context.
+Integration tests use `TestConfig` and the image `mongo:6.0.2`. `MongoTestConfig` is unused and its `@ComponentScan` omits `com.mongodb.controller`. Do not import it, extend it, or edit that list.
 
-Do not make a run pass by deleting assertions, loosening expected values, adding `@Disabled`, or skipping tests. Docker must be running for Testcontainers. If it is not, say the suite was not verified.
+Controller tests use `MockMvcBuilders.standaloneSetup` and a Mockito mock of `UserServicePort`. They call `/api/users`, without the `/springmongodb` context path. Entity mapping tests are plain JUnit, with no Spring context.
 
-The `stop` hook runs `.\mvnw.cmd test` after an agent edits `src/main`, `src/test`, or `pom.xml`.
+The `stop` hook behavior is rule 6 of the unit test policy in `AGENTS.md`.

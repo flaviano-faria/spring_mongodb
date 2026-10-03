@@ -1,14 +1,9 @@
 # Domain model
 
-`User` is the only aggregate: `id`, `document`, `name`, `age`. Collection name is `users`.
+`User` is the only aggregate: `id`, `document`, `name`, `age`.
 
-`@Document` and `@Id` on this class are a known leak. Leave them unless the task is to remove Mongo annotations from the domain.
+`User` and `UserEntity` both have `@Document` and `@Id`. That is a known leak on `User`. Leave the annotations on `User` unless the task is to remove them from the domain. Do not drop them from `UserEntity` either. The collection name `users` is the persistence mapping. See "Known architecture leaks" in `AGENTS.md`.
 
-A field change is incomplete until all of these match:
+A field change follows the field checklist in `AGENTS.md`: `User`, `UserEntity`, `fromUser`, `toUser`, and every test that builds or reads a user. `age` is a primitive `int`. Use `Integer` only when a missing value must stay null.
 
-1. `User`
-2. `UserEntity`
-3. `UserEntity.fromUser` and `toUser`
-4. Builders and assertions in every test that constructs or reads a user
-
-Do not add repository, controller, or Spring Web types to this class. Use a wrapper (`Integer`) instead of primitive `int` when a missing value must stay null; existing `age` is a primitive.
+Do not add repository, controller, or Spring Web types to this class.

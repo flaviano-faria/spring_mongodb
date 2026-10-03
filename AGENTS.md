@@ -27,11 +27,11 @@ UserController  →  UserServicePort  →  UserService  →  UserRepositoryPort 
 
 **Dependency rule:** Controllers and infra depend inward on ports/domain. Do not let domain services depend on Spring Data interfaces or HTTP types.
 
-Before editing a layer, read its file under `harness/layers/`. The map is `harness/README.md`.
+Important: Before editing a layer, read its file under `harness/layers/`. The map is `harness/README.md`.
 
 ### Known architecture leaks (do not “fix” casually)
 
-- `User` has `@Document` / `@Id` (Mongo annotations on domain).
+- `User` and `UserEntity` both have `@Document` / `@Id`. The annotations on `User` are a leak. Leave both in place unless the task is to remove them from the domain.
 - Controllers bind/return `User` directly (no DTO layer).
 - `UserService` is registered via `@Bean` in `BeanConfiguration`, not stereotype scanning alone.
 
@@ -43,9 +43,9 @@ Before editing a layer, read its file under `harness/layers/`. The map is `harne
    - `com.mongodb.controller`
    - `com.mongodb.domain.adapter.service`
 
-   New packages **will not load** unless added here (and mirrored in tests if they use their own `@ComponentScan`).
+   A new package is invisible until it is added to this list. `UserServiceTest` repeats the same four packages on its own `@ComponentScan`, and Spring does not process that annotation. The test context is `@SpringBootTest(classes = SpringMongoApplication.class)` plus `@Import(TestConfig.class)`. `MongoTestConfig` declares a third `@ComponentScan` and omits `com.mongodb.controller`. That class is unused. Do not import it, extend it, or edit its list to match.
 
-2. **New application services:** add a `@Bean` in `BeanConfiguration` (same pattern as `userService`), or annotate and ensure the package is scanned.
+2. **New application services:** add a `@Bean` in `BeanConfiguration` (same pattern as `userService`), or put `@Component` / `@Service` on a class whose package is already on `SpringMongoApplication`'s `@ComponentScan`. `UserService` has no stereotype. The package `com.mongodb.domain.adapter.service` is scanned, and that scan still does not register `UserService`.
 
 3. **Mongo repositories:** enabled for `com.mongodb.infra.adapters.repository` in `MongoConfig`. New Spring Data repos belong there.
 
@@ -58,6 +58,7 @@ Before editing a layer, read its file under `harness/layers/`. The map is `harne
 - Context path: **`/springmongodb`** (`server.servlet.context-path`)
 - Port: **8080**
 - Base URL: `http://localhost:8080/springmongodb/api/users`
+- Controller mappings are relative to the context path. `POST /api/users` in `UserController` is `POST http://localhost:8080/springmongodb/api/users`.
 
 | Method | Path | Behavior |
 |--------|------|----------|
@@ -70,7 +71,7 @@ No update/PATCH, no `@Valid`, no `@ControllerAdvice`, no pagination. `spring-boo
 
 ### Runtime config (`application.properties`)
 
-Uses `spring.data.mongodb.host` + `port` (localhost:27017). There is **no** `uri` / `database` in the properties file, so Boot's default database `test` is used. `MongoProperties` exists but is not driving a custom `MongoClient` bean; Boot auto-config applies.
+`src/main/resources/application.properties` sets `spring.data.mongodb.host` and `port` (localhost:27017) and `server.servlet.context-path=/springmongodb`. There is **no** `uri` / `database` in that file, so Boot's default database `test` is used. `MongoProperties` declares `uri`, `database`, `host`, `port`, `username`, `password`, and `authenticationDatabase`, and it does not build a `MongoClient`. Setting those fields does not change the connection. Boot auto-config applies.
 
 ## Coding conventions
 
@@ -86,7 +87,7 @@ Uses `spring.data.mongodb.host` + `port` (localhost:27017). There is **no** `uri
 - Docker required for `mvn test`.
 - Pattern: `@SpringBootTest(classes = SpringMongoApplication.class)` + `@Import(TestConfig.class)` + `@DynamicPropertySource` → `TestConfig.getMongoUri()`.
 - Autowires concrete `UserService` / `UserRepository`; `@BeforeEach` calls `deleteAll()`.
-- `MongoTestConfig` is **unused dead code** — do not extend it; prefer `TestConfig`.
+- `MongoTestConfig` is **unused dead code**. Its `@ComponentScan` omits `com.mongodb.controller` and is not loaded. Do not import it, extend it, or update that list. Prefer `TestConfig`.
 - Surefire includes `**/*Test.java` only.
 - Controllers are **not** covered by tests today.
 - Mockito and MockMvc are available through `spring-boot-starter-test`; no mocked unit tests exist yet.
@@ -143,9 +144,9 @@ Prefer `standaloneSetup` over `@WebMvcTest` for controllers: the explicit `@Comp
 3. No migration tooling — Mongo is schemaless; be careful with primitive `int` defaults vs wrappers
 
 ### New package / bean
-1. Update `SpringMongoApplication` `@ComponentScan`
-2. Register service beans in `BeanConfiguration` if not stereotype-scanned
-3. Update test scan/import if needed
+1. Update `@ComponentScan` on `SpringMongoApplication` only. The copy on `UserServiceTest` is not loaded
+2. Register a service with a `@Bean` in `BeanConfiguration`, or with a stereotype when its package is already on that scan
+3. Update test imports if the test context needs the new type
 4. Create `<ClassName>Test.java` for each new class in the mirrored test package
 
 ## Commands
@@ -170,7 +171,8 @@ Local Mongo expected at `localhost:27017` for the running app; tests spin their 
 **Don't**
 - Assume Mongo `uri` / `database` properties or mocked unit tests already exist.
 - Finish a class change without its test change, or skip/disable tests to get a green build.
-- Add packages without updating `@ComponentScan`.
+- Add a package without updating `@ComponentScan` on `SpringMongoApplication`.
+- Import `MongoTestConfig`, or edit its `@ComponentScan` so it matches the application.
 - Call `IUserRepository` from controllers or `UserService`.
 - Rely on `save` returning a populated domain id without changing that contract.
 - Use `MongoTestConfig` as the test baseline.
