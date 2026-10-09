@@ -27,7 +27,7 @@ UserController  →  UserServicePort  →  UserService  →  UserRepositoryPort 
 
 **Dependency rule:** Controllers and infra depend inward on ports/domain. Do not let domain services depend on Spring Data interfaces or HTTP types.
 
-Important: Before editing a layer, read its file under `harness/layers/`. The map is `harness/README.md`.
+Important: Before editing a layer, read its file under `harness/layers/`. The map is `harness/README.md`. Before editing `com.mongodb.controller`, also read `.cursor/harness/controller.md`.
 
 ### Known architecture leaks (do not “fix” casually)
 
@@ -134,7 +134,7 @@ Prefer `standaloneSetup` over `@WebMvcTest` for controllers: the explicit `@Comp
 ### New endpoint / use case
 1. `UserServicePort` + `UserService`
 2. `UserRepositoryPort` + `UserRepository` (+ `IUserRepository` if needed)
-3. `UserController` mapping
+3. `UserController` mapping, following `.cursor/harness/controller.md`
 4. Extend `UserServiceTest` (create → assert via reads) and add/update `UserControllerTest` for the new mapping
 5. Update tests for every other class touched (see the unit test policy)
 
